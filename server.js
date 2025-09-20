@@ -1,7 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const { router, crawlPage } = require('./routes/crawlRoute')
-// const MONGO_URI = process.env.MONGO_URI 
+const MONGO_URI = process.env.MONGO_URI 
 const app = express()
 app.use(express.json())
 
