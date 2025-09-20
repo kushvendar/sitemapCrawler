@@ -8,18 +8,18 @@ app.use(express.json())
 // connecting to db
 
 
-// async function  connectDB() {
+async function  connectDB() {
     
-//     try {
-//         await mongoose.connect(MONGO_URI)
-//         console.log('Mongo Db connected')
-//     } catch (error) {
-//         console.log(error.message)
-//     }
+    try {
+        await mongoose.connect(MONGO_URI)
+        console.log('Mongo Db connected')
+    } catch (error) {
+        console.log(error.message)
+    }
 
-// }
+}
 
-// connectDB()
+connectDB()
 
 
 app.use('/api', router)
@@ -28,8 +28,8 @@ app.use('/api', router)
 // to start crawling sitemap
 
 app.get('/',async(req,res)=>{
-    const url = req.query.url
-    const page = await crawlPage(url)
+    // const url = req.query.url
+    const page = await crawlPage('https://www.edzy.ai/sitemap.xml')
     res.json({
         message:"crawled the url",
         page

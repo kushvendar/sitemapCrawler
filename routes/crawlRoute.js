@@ -5,43 +5,39 @@ const axios = require('axios')
 const Page = require('../models/Page')
 
 // middleware 
-const router = express.router()
+const router = express.Router()
 
 
 async function crawlPage(url) {
   try {
     // fetch HTML
     const { data } = await axios.get(url);
-    const $ = cheerio.load(data);
-
+    const $ = cheerio.load(data, { xmlMode: true })
+    
     // extract links
     const links = [];
-    $("a").each((_, el) => {
-      const href = $(el).attr("href");
-      if (href && !href.startsWith("#")) {
-        links.push(new URL(href, url).href); 
-      }
+    $("url > loc").each((_, el) => {
+      links.push($(el).text().trim());
     });
 
-    // pushing links into mongoDb
+    // pushing linksout into mongoDb
 
-    // let page = await Page.findOneAndUpdate(
-    //   { url },
-    //   { html: data, linksOut: links },
-    //   { new: true, upsert: true }
-    // );
+    let page = await Page.findOneAndUpdate(
+      { url },
+      { html: data, linksOut: links },
+      { new: true, upsert: true }
+    );
 
     // Update linksIn for target pages
 
-    // for (const link of links) {
-    //   await Page.findOneAndUpdate(
-    //     { url: link },
-    //     { $addToSet: { linksIn: url } },
-    //     { upsert: true }
-    //   );
-    // }
-
-    return links;
+    for (const link of links) {
+      await Page.findOneAndUpdate(
+        { url: link },
+        { $addToSet: { linksIn: url } },
+        { upsert: true }
+      );
+    }
+    return page;
   } catch (err) {
     console.error("Error crawling:", url, err.message);
   }
